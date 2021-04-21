@@ -43,8 +43,8 @@ def intermediateMatch(message, snippet, decodings):
             # Decode a character
             char_decoded = False
             for coded, decoded in decoding_dict.items():
-                if coded == message[start + index: start + index + 3]:
-                    message = message[:start] + message[start:].replace(coded, decoded, 1)
+                if coded == message[start + index: start + index + len(coded)]:
+                    message = message[:start + index] + message[start + index:].replace(coded, decoded, 1)
                     index += 1
                     char_decoded = True
                     break
@@ -52,9 +52,11 @@ def intermediateMatch(message, snippet, decodings):
             if not char_decoded:
                 return intermediateMatch(message[start + 1:], snippet, decodings)
 
-        # Determine if all characters of snippet have been compared
+        # Determine if snippet is a substring of message
         if index == len(snippet):
-            matches = True
+            print(message, snippet)
+            matches = True if (snippet.upper() in message.upper()) else False
+            break
 
     return matches
 
