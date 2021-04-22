@@ -18,33 +18,9 @@ def intermediateMatch(message, snippet, decodings):
     # Convert decodings into a dictionary
     decoding_dict = {x[0]: x[1] for x in decodings}
 
-    # Find first occurence of first character in snippet
-    start = message_alter.find(snippet[0])
-    # Determine if the first character of snippet is not encoded in message
-    if (start == -1) and (snippet[0] not in decoding_dict.values()):
-        return False
-
-    # Find all possiblilities of decoding the first character in snippet
-    possible_start_decodings = {}
-    for coded, decoded in decoding_dict.items():
-        if (decoded == snippet[0]) and (message_alter.find(decoded) <= start):
-            possible_start_decodings[coded] = None
-    
-    earliest = []
-    # Find earliest occurence of any possibile decoding
-    for possibility in possible_start_decodings:
-        possible_start_decodings[possibility] = message_alter.find(possibility)
-        if (earliest == []) or (earliest[1] < possible_start_decodings[possibility]):
-            earliest = [possibility, possible_start_decodings[possibility]]
-
-    if earliest:
-        # Decode first character of snippet in message
-        message_alter = message_alter.replace(earliest[0], snippet[0], 1)
-        # Find new first occurence of first character in snippet
-        start = message_alter.find(snippet[0])
-
     matches = False
-    index = 1
+    start = 0
+    index = 0
     # Run while snippet is not yet determined to be in message
     while (not matches) and (start <= len(message_alter) - len(snippet)):
         # Check if letter is the same in message and snippet
@@ -92,31 +68,9 @@ def hardMatch(message, snippet, decodings):
     # Convert decodings into a dictionary
     decoding_dict = {x[0]: x[1] for x in decodings}
 
-    # Find first occurence of first character in snippet
-    start = message_alter.find(snippet[0])
-    # Determine if the first character of snippet is not encoded in message
-    if (start == -1) and (snippet[0] not in decoding_dict.values()):
-        return False
-
-    # Find decoding path to first character in snippet
-    path = [snippet[0]]
-    added_new = True
-    while (path[-1] not in message_alter[:message_alter.find(path[-1])]) and added_new:
-        added_new = False
-        # Add new point along path
-        for coded, decoded in decoding_dict.items():
-            if decoded == path[-1]:
-                path.append(coded.upper())
-                added_new = True
-
-    # Decode first character of snippet in message
-    if path[-1] in message_alter:
-        message_alter = message_alter.replace(path[-1], path[0], 1)
-        # Find new first occurence of first character in snippet
-        start = message_alter.find(snippet[0])
-
     matches = False
-    index = 1
+    start = 0
+    index = 0
     # Run while snippet is not yet determined to be in message
     while (not matches) and (start <= len(message_alter) - len(snippet)):
         # Check if letter is the same in message and snippet
