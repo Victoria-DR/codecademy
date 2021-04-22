@@ -31,7 +31,7 @@ def intermediateMatch(message, snippet, decodings):
             char_decoded = False
             for coded, decoded in decoding_dict.items():
                 if coded == message_alter[start + index: start + index + len(coded)]:
-                    message_alter = message_alter[:start + index] + message_alter[start + index:].replace(coded, decoded, 1)
+                    message_alter = message_alter[:start + index] + message_alter[start + index:].replace(coded, decoded.upper(), 1)
                     # Allow for decoding to occur only once
                     index += 1
                     char_decoded = True
@@ -81,7 +81,7 @@ def hardMatch(message, snippet, decodings):
             char_decoded = False
             for coded, decoded in decoding_dict.items():
                 if coded == message_alter[start + index: start + index + len(coded)]:
-                    message_alter = message_alter[:start + index] + message_alter[start + index:].replace(coded, decoded, 1)
+                    message_alter = message_alter[:start + index] + message_alter[start + index:].replace(coded, decoded.upper(), 1)
                     char_decoded = True
                     break
             # Repeat entire process with new start point
@@ -99,3 +99,57 @@ def hardMatch(message, snippet, decodings):
 # print(hardMatch("Codec%65demy is great", "codecademy", [["%65", "A"]]))
 # print(hardMatch("Codec%65demy is great", "codecademy", [["%65", "$10"], ["$10", "A"]]))
 # print(hardMatch("Codec%65demy is great", "codecademy", [["%65", "$10"], ["$10", "B"]]))
+
+def extremeMatch(message, snippet, decodings):
+    # Render case insensitive
+    message_alter = message.upper()
+    snippet = snippet.upper()
+    # Check if snippet is a substring of message
+    if snippet in message_alter:
+        return True
+
+    # Convert decodings into a dictionary
+    decoding_dict = {x[0]: x[1] for x in decodings}
+
+    matches = False
+    start = 0
+    index = 0
+    times_decoded = 0
+    # Run while snippet is not yet determined to be in message
+    while (not matches) and (start <= len(message_alter) - len(snippet)):
+        print(message_alter)
+        # Check for cycles in decodings
+        if times_decoded > len(decodings):
+            return False
+
+        # Check if letter is the same in message and snippet
+        if message_alter[start + index] == snippet[index]:
+            index += 1
+            times_decoded = 0
+        else:
+            # Decode a character
+            char_decoded = False
+            for coded, decoded in decoding_dict.items():
+                if coded == message_alter[start + index: start + index + len(coded)]:
+                    message_alter = message_alter[:start + index] + message_alter[start + index:].replace(coded, decoded.upper(), 1)
+                    times_decoded += 1
+                    char_decoded = True
+                    break
+            # Repeat entire process with new start point
+            if not char_decoded:
+                return intermediateMatch(message[start + 1:], snippet, decodings)
+
+        # Determine if snippet is a substring of message
+        if index == len(snippet):
+            matches = True if (snippet.upper() in message_alter.upper()) else False
+            break
+
+    return matches
+
+# print(extremeMatch("$1cademy is great", "codecademy", [["$2", "co"], ["$1", "code"]]))
+# print(extremeMatch("$2decademy is great", "codecademy", [["$1", "code"], ["$2", "co"]]))
+# print(extremeMatch("%1 is great", "codecademy", [["%1", "codecademy"], ["%68", "D"]]))
+# print(extremeMatch("%1 is great", "codecademy", [["%1", "codecademy"], ["codecademy", "%2"], ["%2", "%1"]]))
+# print(extremeMatch("%1 is great", "code", [["%1", "codecademy"], ["%68", "D"]]))
+# print(extremeMatch("%1 is great", "code", [["%1", "co"], ["%68", "D"]]))
+# print(extremeMatch("%1 is great", "code", [["%1", "co"], ["co", "d"], ["d", "%1"]]))
